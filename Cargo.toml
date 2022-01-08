@@ -3,9 +3,12 @@ name = "interval_tree"
 version = "0.1.0"
 edition = "2021"
 authors = ["Daniel Bittman <danielbittman1@gmail.com>"]
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
+repository = "https://github.com/dbittman/non-overlapping-interval-tree.git"
+homepage = "https://github.com/dbittman/non-overlapping-interval-tree.git"
+license = "MIT"
+readme = "README.md"
+description = "Map data structure keyed on (non-overlapping) ranges that allows lookup of a point within a range. Can be no_std (with use of alloc crate)."
+keywords = ["map", "no_std", "range", "interval", "tree"]
 [dependencies]
 
 [features]
