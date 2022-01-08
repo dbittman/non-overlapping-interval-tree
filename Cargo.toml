@@ -10,6 +10,7 @@ readme = "README.md"
 description = "Map data structure keyed on (non-overlapping) ranges that allows lookup of a point within a range. Can be no_std (with use of alloc crate)."
 keywords = ["map", "no_std", "range", "interval", "tree"]
 categories = ["data-structures", "no-std"]
+documentation = "https://docs.rs/nonoverlapping_interval_tree"
 
 [dependencies]
 

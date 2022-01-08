@@ -4,5 +4,7 @@ Simple library for a map data structure that contains elements keyed on ranges, 
 overlap. Lookup queries can lookup a specific point in a range, and get back the value for that
 range.
 
+Docs: [docs.rs](https://docs.rs/nonoverlapping_interval_tree)
+
 This library supports no_std (but requires core and the alloc crate). To enable no_std, disable
 default features.
