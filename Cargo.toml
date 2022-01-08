@@ -1,5 +1,5 @@
 [package]
-name = "interval_tree"
+name = "nonoverlapping_interval_tree"
 version = "0.1.0"
 edition = "2021"
 authors = ["Daniel Bittman <danielbittman1@gmail.com>"]
@@ -10,6 +10,7 @@ readme = "README.md"
 description = "Map data structure keyed on (non-overlapping) ranges that allows lookup of a point within a range. Can be no_std (with use of alloc crate)."
 keywords = ["map", "no_std", "range", "interval", "tree"]
 categories = ["data-structures", "no-std"]
+
 [dependencies]
 
 [features]

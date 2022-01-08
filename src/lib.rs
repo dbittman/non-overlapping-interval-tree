@@ -13,7 +13,7 @@
 //!
 //! # Examples
 //! ```
-//! use interval_tree::NonOverlappingIntervalTree;
+//! use nonoverlapping_interval_tree::NonOverlappingIntervalTree;
 //! let mut it = NonOverlappingIntervalTree::new();
 //! it.insert_replace(1..3, "hello");
 //! assert_eq!(it.get(&2), Some(&"hello"));
@@ -142,7 +142,7 @@ impl<K: Ord + Clone, V> NonOverlappingIntervalTree<K, V> {
     /// are in the tree that overlap with the inserted range.
     /// # Examples
     /// ```
-    /// use interval_tree::NonOverlappingIntervalTree;
+    /// use nonoverlapping_interval_tree::NonOverlappingIntervalTree;
     /// let mut it = NonOverlappingIntervalTree::new();
     /// it.insert_replace(1..3, "hello");
     /// ```
