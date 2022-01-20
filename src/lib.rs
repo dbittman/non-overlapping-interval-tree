@@ -55,14 +55,14 @@ use alloc::{vec, vec::Vec};
 use core::ops::{Deref, DerefMut, Range};
 
 #[cfg(not(feature = "std"))]
-use alloc::collections::btree_map::Range as ValueRange;
+pub use alloc::collections::btree_map::Range as ValueRange;
 #[cfg(not(feature = "std"))]
-use alloc::collections::btree_map::RangeMut as ValueRangeMut;
+pub use alloc::collections::btree_map::RangeMut as ValueRangeMut;
 
 #[cfg(feature = "std")]
-use std::collections::btree_map::Range as ValueRange;
+pub use std::collections::btree_map::Range as ValueRange;
 #[cfg(feature = "std")]
-use std::collections::btree_map::RangeMut as ValueRangeMut;
+pub use std::collections::btree_map::RangeMut as ValueRangeMut;
 
 #[derive(Clone, Debug, Copy, PartialEq, Eq)]
 /// Tracks the size of intervals and owns values internally in the tree.
