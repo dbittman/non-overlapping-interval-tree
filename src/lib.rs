@@ -54,6 +54,16 @@ use alloc::{vec, vec::Vec};
 #[cfg(not(feature = "std"))]
 use core::ops::{Deref, DerefMut, Range};
 
+#[cfg(not(feature = "std"))]
+use alloc::collections::btree_map::Range as ValueRange;
+#[cfg(not(feature = "std"))]
+use alloc::collections::btree_map::RangeMut as ValueRangeMut;
+
+#[cfg(feature = "std")]
+use std::collections::btree_map::Range as ValueRange;
+#[cfg(feature = "std")]
+use std::collections::btree_map::RangeMut as ValueRangeMut;
+
 #[derive(Clone, Debug, Copy, PartialEq, Eq)]
 /// Tracks the size of intervals and owns values internally in the tree.
 pub struct IntervalValue<K, V> {
@@ -231,6 +241,42 @@ impl<K: Ord + Clone, V> NonOverlappingIntervalTree<K, V> {
         None
     }
 
+    /// Returns a double-ended iterator over a sub-range of elements in the map. The resulting range
+    /// may contain individual points that are not in the provided range if the stored ranges
+    /// overlap with the terminating point. For example, if the tree contains [[1..3], [4..6]], and
+    /// you call tree.range(1..5), you'll get back [[1..3], [4..6]], since the 4..6 range contains 4
+    /// as requested by the call to range.
+    pub fn range(&self, range: Range<K>) -> ValueRange<'_, K, IntervalValue<K, V>> {
+        /* We might have to look at the element immediately preceeding range.start */
+        let therange = {
+            let start = range.start;
+            self.tree
+                .range(..K::clone(&start))
+                .last()
+                .map_or(start, |prev| K::clone(prev.0))..range.end
+        };
+
+        self.tree.range(therange)
+    }
+
+    /// Returns a mutable double-ended iterator over a sub-range of elements in the map. The resulting range
+    /// may contain individual points that are not in the provided range if the stored ranges
+    /// overlap with the terminating point. For example, if the tree contains [[1..3], [4..6]], and
+    /// you call tree.range(1..5), you'll get back [[1..3], [4..6]], since the 4..6 range contains 4
+    /// as requested by the call to range.
+    pub fn range_mut(&mut self, range: Range<K>) -> ValueRangeMut<'_, K, IntervalValue<K, V>> {
+        /* We might have to look at the element immediately preceeding range.start */
+        let therange = {
+            let start = range.start;
+            self.tree
+                .range(..K::clone(&start))
+                .last()
+                .map_or(start, |prev| K::clone(prev.0))..range.end
+        };
+
+        self.tree.range_mut(therange)
+    }
+
     /// Remove all elements in the tree.
     pub fn clear(&mut self) {
         self.tree.clear()
@@ -344,6 +390,24 @@ mod tests {
         assert_eq!(it.get(&1), None);
         assert_eq!(it.get(&2), None);
         assert_eq!(it.get(&3), None);
+    }
+
+    #[test]
+    fn it_does_ranges() {
+        let mut it = NonOverlappingIntervalTree::new();
+        assert_eq!(it.insert_replace(1..3, "hello").len(), 0);
+        assert_eq!(it.insert_replace(4..6, "world").len(), 0);
+        assert_eq!(it.insert_replace(10..12, "bad").len(), 0);
+        let r: Vec<&str> = it.range(1..3).map(|r| *r.1.value()).collect();
+        assert_eq!(r, vec!["hello"]);
+        let r: Vec<&str> = it.range(1..5).map(|r| *r.1.value()).collect();
+        assert_eq!(r, vec!["hello", "world"]);
+        let r: Vec<&str> = it.range(2..8).map(|r| *r.1.value()).collect();
+        assert_eq!(r, vec!["hello", "world"]);
+        let r: Vec<&str> = it.range(1..80).map(|r| *r.1.value()).collect();
+        assert_eq!(r, vec!["hello", "world", "bad"]);
+        let r: Vec<&str> = it.range(11..12).map(|r| *r.1.value()).collect();
+        assert_eq!(r, vec!["bad"]);
     }
 
     #[test]
