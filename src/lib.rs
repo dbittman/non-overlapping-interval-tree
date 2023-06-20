@@ -139,11 +139,11 @@ impl<K: Ord + Clone, V> NonOverlappingIntervalTree<K, V> {
     /// occurs. If there's an element whose range starts with `int`'s start, that element is removed
     /// and returned.
     ///
-    /// # Safety
+    /// # Note
     /// This function can potentially corrupt the tree, since the normal operation functions rely on
     /// there being no overlaps. Care must be taken when using this function to ensure the
     /// no-overlap property manually.
-    pub unsafe fn insert(&mut self, int: Range<K>, val: V) -> Option<V> {
+    pub fn insert(&mut self, int: Range<K>, val: V) -> Option<V> {
         self.tree
             .insert(int.start, IntervalValue::new(val, int.end))
             .map(|v| v.val)
