@@ -408,6 +408,18 @@ mod tests {
         assert_eq!(r, vec!["hello", "world", "bad"]);
         let r: Vec<&str> = it.range(11..12).map(|r| *r.1.value()).collect();
         assert_eq!(r, vec!["bad"]);
+
+        let mut it = NonOverlappingIntervalTree::new();
+        assert_eq!(it.insert_replace(3..5, "test").len(), 0);
+        assert_eq!(it.range(100..200).count(), 0);
+
+        let mut it = NonOverlappingIntervalTree::new();
+        assert_eq!(
+            it.insert_replace(34583076667392u64..34600256536576u64, "world")
+                .len(),
+            0
+        );
+        assert_eq!(it.range(67087389159424u64..67104569032704u64).count(), 0);
     }
 
     #[test]
