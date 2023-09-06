@@ -90,6 +90,16 @@ impl<K, V> IntervalValue<K, V> {
     pub fn into_inner(self) -> V {
         self.val
     }
+
+    /// Return the end of this interval.
+    pub fn end(&self) -> &K {
+        &self.end
+    }
+
+    /// Consume the IntervalValue and return the end.
+    pub fn into_end(self) -> K {
+        self.end
+    }
 }
 
 impl<K, V> Deref for IntervalValue<K, V> {
