@@ -241,22 +241,26 @@ impl<K: Ord + Clone, V> NonOverlappingIntervalTree<K, V> {
         None
     }
 
+    fn elem_range_that_may_overlap_range(&self, range: Range<K>) -> Range<K> {
+        /* We might have to look at the element immediately preceeding range.start */
+        let start = range.start;
+        let maybe_range_before = self.tree.range(..K::clone(&start)).last();
+        /* If the preceding element does overlap, adjust start to its beginning instead of range.start */
+        let adjusted_start = match maybe_range_before {
+            Some((preceding_start, interval_value)) if (preceding_start..&interval_value.end).contains(&&start) => preceding_start,
+            _ => &start,
+        };
+
+        K::clone(adjusted_start)..range.end
+    }
+
     /// Returns a double-ended iterator over a sub-range of elements in the map. The resulting range
     /// may contain individual points that are not in the provided range if the stored ranges
     /// overlap with the terminating point. For example, if the tree contains [[1..3], [4..6]], and
     /// you call tree.range(1..5), you'll get back [[1..3], [4..6]], since the 4..6 range contains 4
     /// as requested by the call to range.
     pub fn range(&self, range: Range<K>) -> ValueRange<'_, K, IntervalValue<K, V>> {
-        /* We might have to look at the element immediately preceeding range.start */
-        let therange = {
-            let start = range.start;
-            self.tree
-                .range(..K::clone(&start))
-                .last()
-                .map_or(start, |prev| K::clone(prev.0))..range.end
-        };
-
-        self.tree.range(therange)
+        self.tree.range(self.elem_range_that_may_overlap_range(range))
     }
 
     /// Returns a mutable double-ended iterator over a sub-range of elements in the map. The resulting range
@@ -265,16 +269,7 @@ impl<K: Ord + Clone, V> NonOverlappingIntervalTree<K, V> {
     /// you call tree.range(1..5), you'll get back [[1..3], [4..6]], since the 4..6 range contains 4
     /// as requested by the call to range.
     pub fn range_mut(&mut self, range: Range<K>) -> ValueRangeMut<'_, K, IntervalValue<K, V>> {
-        /* We might have to look at the element immediately preceeding range.start */
-        let therange = {
-            let start = range.start;
-            self.tree
-                .range(..K::clone(&start))
-                .last()
-                .map_or(start, |prev| K::clone(prev.0))..range.end
-        };
-
-        self.tree.range_mut(therange)
+        self.tree.range_mut(self.elem_range_that_may_overlap_range(range))
     }
 
     /// Remove all elements in the tree.
