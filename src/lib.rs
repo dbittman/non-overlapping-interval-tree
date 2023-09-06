@@ -407,6 +407,15 @@ mod tests {
         let mut it = NonOverlappingIntervalTree::new();
         assert_eq!(it.insert_replace(3..5, "test").len(), 0);
         assert_eq!(it.range(100..200).count(), 0);
+        assert_eq!(it.range_mut(100..200).count(), 0);
+
+        assert_eq!(it.range(0..3).count(), 0);
+        assert_eq!(it.range(0..4).count(), 1);
+        assert_eq!(it.range(0..5).count(), 1);
+        assert_eq!(it.range(0..6).count(), 1);
+        assert_eq!(it.range(3..5).count(), 1);
+        assert_eq!(it.range(3..6).count(), 1);
+        assert_eq!(it.range(5..6).count(), 0);
 
         let mut it = NonOverlappingIntervalTree::new();
         assert_eq!(
@@ -415,6 +424,7 @@ mod tests {
             0
         );
         assert_eq!(it.range(67087389159424u64..67104569032704u64).count(), 0);
+        assert_eq!(it.range_mut(67087389159424u64..67104569032704u64).count(), 0);
     }
 
     #[test]
