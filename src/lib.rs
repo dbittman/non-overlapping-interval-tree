@@ -179,9 +179,9 @@ impl<K: Ord + Clone, V> NonOverlappingIntervalTree<K, V> {
                 if overlap(&thisrange, &int) {
                     let rem = self.tree.remove(&thisrange.start).unwrap().val;
                     removed.push((thisrange, rem));
+                    count += 1;
                     break;
                 }
-                count += 1;
             }
             if count == 0 {
                 break;
@@ -257,7 +257,11 @@ impl<K: Ord + Clone, V> NonOverlappingIntervalTree<K, V> {
         let maybe_range_before = self.tree.range(..K::clone(&start)).last();
         /* If the preceding element does overlap, adjust start to its beginning instead of range.start */
         let adjusted_start = match maybe_range_before {
-            Some((preceding_start, interval_value)) if (preceding_start..&interval_value.end).contains(&&start) => preceding_start,
+            Some((preceding_start, interval_value))
+                if (preceding_start..&interval_value.end).contains(&&start) =>
+            {
+                preceding_start
+            }
             _ => &start,
         };
 
@@ -270,7 +274,8 @@ impl<K: Ord + Clone, V> NonOverlappingIntervalTree<K, V> {
     /// you call tree.range(1..5), you'll get back [[1..3], [4..6]], since the 4..6 range contains 4
     /// as requested by the call to range.
     pub fn range(&self, range: Range<K>) -> ValueRange<'_, K, IntervalValue<K, V>> {
-        self.tree.range(self.elem_range_that_may_overlap_range(range))
+        self.tree
+            .range(self.elem_range_that_may_overlap_range(range))
     }
 
     /// Returns a mutable double-ended iterator over a sub-range of elements in the map. The resulting range
@@ -279,7 +284,8 @@ impl<K: Ord + Clone, V> NonOverlappingIntervalTree<K, V> {
     /// you call tree.range(1..5), you'll get back [[1..3], [4..6]], since the 4..6 range contains 4
     /// as requested by the call to range.
     pub fn range_mut(&mut self, range: Range<K>) -> ValueRangeMut<'_, K, IntervalValue<K, V>> {
-        self.tree.range_mut(self.elem_range_that_may_overlap_range(range))
+        self.tree
+            .range_mut(self.elem_range_that_may_overlap_range(range))
     }
 
     /// Remove all elements in the tree.
@@ -434,7 +440,10 @@ mod tests {
             0
         );
         assert_eq!(it.range(67087389159424u64..67104569032704u64).count(), 0);
-        assert_eq!(it.range_mut(67087389159424u64..67104569032704u64).count(), 0);
+        assert_eq!(
+            it.range_mut(67087389159424u64..67104569032704u64).count(),
+            0
+        );
     }
 
     #[test]
@@ -466,5 +475,28 @@ mod tests {
         assert_eq!(it.get(&1), Some(&"world"));
         assert_eq!(it.get(&2), Some(&"world"));
         assert_eq!(it.get(&3), Some(&"world"));
+    }
+
+    #[test]
+    fn multi_replace() {
+        let mut it = NonOverlappingIntervalTree::new();
+        it.insert(1..2, 'a');
+        it.insert(2..3, 'b');
+        it.insert(3..4, 'c');
+        it.insert(4..5, 'd');
+
+        let kicked = it.insert_replace(1..5, 'e');
+        assert_eq!(kicked.len(), 4);
+        assert!(kicked.contains(&(1..2, 'a')));
+        assert!(kicked.contains(&(2..3, 'b')));
+        assert!(kicked.contains(&(3..4, 'c')));
+        assert!(kicked.contains(&(4..5, 'd')));
+
+        assert_eq!(it.get(&1), Some(&'e'));
+        assert_eq!(it.get(&2), Some(&'e'));
+        assert_eq!(it.get(&3), Some(&'e'));
+        assert_eq!(it.get(&4), Some(&'e'));
+        assert_eq!(it.get(&0), None);
+        assert_eq!(it.get(&5), None);
     }
 }
